@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unaturs - Repositorio de Proyectos Turísticos</title>
+    <!-- Bootstrap 4 CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <!-- Estilos personalizados modulares -->
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        .hero-section {
+            background: linear-gradient(135deg, var(--brand-orange) 0%, #d94e0d 100%);
+            color: white;
+            padding: 60px 0;
+            border-radius: 0 0 25px 25px;
+            box-shadow: 0 10px 30px rgba(242, 101, 34, 0.15);
+        }
+        .search-box {
+            background: white;
+            border-radius: 50px;
+            padding: 8px 20px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- NAVBAR PÚBLICA -->
+    <nav class="navbar navbar-expand-lg navbar-light navbar-custom sticky-top">
+        <div class="container">
+            <a class="navbar-brand brand-logo" href="index.html">
+                UNATURS <span class="badge badge-beta">BETA</span>
+            </a>
+            
+            <button class="navbar-toggler border-0" type="button" data-toggle="collapse" data-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ml-auto align-items-center">
+                    <li class="nav-item active mr-3">
+                        <a class="nav-link font-weight-bold text-dark" href="index.html"><i class="fas fa-home mr-1 text-warning"></i> Inicio</a>
+                    </li>
+                    <li class="nav-item mr-3">
+                        <button class="btn btn-outline-secondary btn-sm rounded-pill px-3" data-toggle="modal" data-target="#contactoModal">
+                            <i class="fas fa-envelope mr-1"></i> Contacto
+                        </button>
+                    </li>
+                    <li class="nav-item mr-2">
+                        <button class="btn btn-outline-orange btn-sm rounded-pill px-3 font-weight-bold text-dark border-orange" data-toggle="modal" data-target="#loginModal">
+                            <i class="fas fa-sign-in-alt mr-1"></i> Iniciar Sesión
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="btn btn-orange btn-sm rounded-pill px-3 shadow-sm" data-toggle="modal" data-target="#registroModal">
+                            <i class="fas fa-user-plus mr-1"></i> Registrarse
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- HERO SECTION (BANNER PRINCIPAL) -->
+    <header class="hero-section text-center mb-5">
+        <div class="container">
+            <h1 class="font-weight-bold display-4 mb-2">Repositorio de Proyectos Turísticos</h1>
+            <p class="lead opacity-9 mb-4">Universidad Nacional Experimental del Turismo (UNATURS)</p>
+            
+            <!-- Buscador Principal -->
+            <div class="row justify-content-center">
+                <div class="col-md-8">
+                    <div class="input-group search-box">
+                        <div class="input-group-prepend align-items-center pl-2">
+                            <i class="fas fa-search text-muted"></i>
+                        </div>
+                        <input type="text" id="inputBusquedaPublica" class="form-control border-0 shadow-none bg-transparent" placeholder="Buscar por título, temática o región...">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- CONTENEDOR DE PROYECTOS DISPONIBLES -->
+    <main class="container mb-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3 class="font-weight-bold text-dark m-0"><i class="fas fa-folder-open mr-2 text-warning"></i>Proyectos Disponibles</h3>
+            <span class="text-muted small" id="contadorProyectos">Cargando proyectos...</span>
+        </div>
+
+        <div id="gridProyectosPublicos" class="row">
+            <!-- Se cargan dinámicamente con JavaScript -->
+        </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-white py-4 border-top text-center text-muted small">
+        <div class="container">
+            <p class="mb-0">&copy; 2026 UNATURS - Sistema de Gestión de Proyectos de Investigación Turística.</p>
+        </div>
+    </footer>
+
+    <!-- MODAL INICIAR SESIÓN -->
+    <div class="modal fade" id="loginModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content border-0 shadow-lg rounded-lg">
+                <div class="modal-header bg-light">
+                    <h5 class="modal-title font-weight-bold text-dark"><i class="fas fa-lock mr-2 text-warning"></i>Iniciar Sesión en Unaturs</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body p-4">
+                    <div id="alertaErrorLogin" class="alert alert-danger d-none small" role="alert"></div>
+                    <form id="formLoginModal">
+                        <div class="form-group">
+                            <label class="small font-weight-bold">Usuario / Correo</label>
+                            <input type="text" class="form-control" id="loginUsername" required placeholder="correo@unaturs.edu.ve">
+                        </div>
+                        <div class="form-group">
+                            <label class="small font-weight-bold">Contraseña</label>
+                            <input type="password" class="form-control" id="loginPassword" required placeholder="••••••••">
+                        </div>
+                        <button type="submit" id="btnSubmitLogin" class="btn btn-orange btn-block py-2 font-weight-bold mt-4">Ingresar al Sistema</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE REGISTRO (Actualizado) -->
+<div class="modal fade" id="registroModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content border-0 shadow-lg rounded-lg">
+            <div class="modal-header bg-light">
+                <h5 class="modal-title font-weight-bold text-dark"><i class="fas fa-user-plus mr-2 text-warning"></i>Registro en Unaturs</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body p-4">
+                <div id="alertaErrorRegistro" class="alert alert-danger d-none small" role="alert"></div>
+                <div id="alertaExitoRegistro" class="alert alert-success d-none small" role="alert"></div>
+                
+                <form id="formRegistroModal">
+                    <div class="form-group">
+                        <label class="small font-weight-bold">Nombre Completo</label>
+                        <input type="text" class="form-control" id="regNombre" required placeholder="Ej. José Pérez">
+                    </div>
+                    <div class="form-group">
+                        <label class="small font-weight-bold">Correo Institucional</label>
+                        <input type="email" class="form-control" id="regEmail" required placeholder="usuario@unaturs.edu.ve">
+                    </div>
+                    <div class="form-group">
+                        <label class="small font-weight-bold">Contraseña</label>
+                        <input type="password" class="form-control" id="regPassword" required placeholder="••••••••">
+                    </div>
+                    <div class="form-group">
+                        <label class="small font-weight-bold">Rol en el Sistema</label>
+                        <select class="form-control" id="regRol">
+                            <option value="Estudiante">Estudiante (Acceso inmediato)</option>
+                            <option value="Profesor">Profesor (Requiere aprobación del Administrador)</option>
+                        </select>
+                    </div>
+                    <button type="submit" id="btnSubmitRegistro" class="btn btn-orange btn-block py-2 font-weight-bold mt-3">Completar Registro</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <!-- MODAL DE CONTACTO -->
+    <div class="modal fade" id="contactoModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content border-0 shadow-lg rounded-lg">
+                <div class="modal-header bg-light">
+                    <h5 class="modal-title font-weight-bold text-dark"><i class="fas fa-envelope mr-2 text-warning"></i>Contacto Institucional</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body p-4 text-center">
+                    <p class="text-muted">Para soporte técnico o consultas sobre los proyectos de investigación turística, comunícate con el departamento académico de UNATURS.</p>
+                    <p class="font-weight-bold text-dark mb-1"><i class="fas fa-envelope text-warning mr-2"></i>soporte@unaturs.edu.ve</p>
+                    <button type="button" class="btn btn-secondary btn-sm mt-3 px-4 rounded-pill" data-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts de Bootstrap y Dependencias -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Scripts Modulares -->
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+        // Cargar proyectos públicos al iniciar la página
+        document.addEventListener("DOMContentLoaded", () => {
+            cargarProyectosPublicos();
+        });
+
+        async function cargarProyectosPublicos(busqueda = "") {
+            const grid = document.getElementById("gridProyectosPublicos");
+            const contador = document.getElementById("contadorProyectos");
+            grid.innerHTML = '<div class="col-12 text-center py-5"><div class="spinner-border text-warning" role="status"></div></div>';
+
+            try {
+                let url = `${API_URL}/proyectos`;
+                if (busqueda) url += `?busqueda=${encodeURIComponent(busqueda)}`;
+
+                const res = await fetch(url);
+                if (res.ok) {
+                    const proyectos = await res.json();
+                    contador.textContent = `${proyectos.length} proyecto(s) encontrado(s)`;
+
+                    if (proyectos.length === 0) {
+                        grid.innerHTML = '<div class="col-12 text-center py-5"><p class="text-muted">No se encontraron proyectos disponibles.</p></div>';
+                        return;
+                    }
+
+                    grid.innerHTML = "";
+                    proyectos.forEach(p => {
+                        grid.innerHTML += `
+                            <div class="col-md-4 mb-4">
+                                <div class="card project-card h-100">
+                                    <div class="card-header bg-light d-flex justify-content-between align-items-center border-0 pt-3">
+                                        <span class="badge badge-pill badge-warning text-dark text-uppercase font-weight-bold" style="font-size:0.65rem;">Turismo</span>
+                                        <small class="text-muted">#${p.id}</small>
+                                    </div>
+                                    <div class="card-body d-flex flex-column pt-0">
+                                        <h5 class="card-title font-weight-bold text-dark mt-2">${p.titulo}</h5>
+                                        <p class="card-text text-muted small flex-grow-1">${p.descripcion || 'Sin descripción detallada.'}</p>
+                                        <div class="mt-3 pt-3 border-top d-flex justify-content-between align-items-center">
+                                            <a href="${API_URL}/proyectos/${p.id}/descargar" class="btn btn-sm btn-outline-secondary rounded-pill px-3" target="_blank">
+                                                <i class="fas fa-file-pdf text-danger mr-1"></i> Descargar PDF
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                } else {
+                    grid.innerHTML = '<div class="col-12 text-center py-4 text-danger">Error al obtener los proyectos.</div>';
+                }
+            } catch (err) {
+                grid.innerHTML = '<div class="col-12 text-center py-4 text-danger">Error de conexión con el servidor backend.</div>';
+            }
+        }
+
+        // Búsqueda en tiempo real desde el buscador principal
+        document.getElementById("inputBusquedaPublica").addEventListener("keyup", (e) => {
+            cargarProyectosPublicos(e.target.value);
+        });
+    </script>
+</body>
+</html>

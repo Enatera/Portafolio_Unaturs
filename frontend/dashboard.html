@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unaturs - Dashboard Panel</title>
+    <!-- Bootstrap 4 CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<div class="container-fluid">
+    <div class="row">
+        <!-- SIDEBAR LATERAL -->
+        <nav class="col-md-3 col-lg-2 d-md-block bg-white sidebar py-4 border-right shadow-sm" style="min-height: 100vh;">
+            <div class="sidebar-sticky">
+                <h5 class="brand-logo px-3 mb-4">UNATURS <span class="badge badge-beta">BETA</span></h5>
+                <ul class="nav flex-column">
+                    <li class="nav-item mb-2">
+                        <a class="nav-link active text-dark font-weight-bold p-3 rounded bg-light" href="#" onclick="mostrarSeccion('proyectos')">
+                            <i class="fas fa-folder-open mr-2 text-warning"></i> Mis Proyectos
+                        </a>
+                    </li>
+                    <!-- Sección exclusiva para Administradores (oculta por defecto) -->
+                    <li class="nav-item mb-2" id="navAdminItem" style="display: none;">
+                        <a class="nav-link text-secondary font-weight-bold p-3 rounded" href="#" onclick="mostrarSeccion('admin')">
+                            <i class="fas fa-users-cog mr-2 text-warning"></i> Gestión de Usuarios
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- CONTENIDO PRINCIPAL -->
+        <main class="col-md-9 ml-sm-auto col-lg-10 px-md-4 py-4">
+            <!-- Barra superior interna -->
+            <div class="d-flex justify-content-between align-items-center pb-3 mb-4 border-bottom">
+                <h4 class="font-weight-bold text-dark m-0" id="tituloVistaPrincipal">Panel de Proyectos</h4>
+                <div class="dropdown">
+                    <button class="btn btn-light dropdown-toggle font-weight-bold text-dark d-flex align-items-center rounded-pill px-3 border" type="button" id="dropdownUsuario" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-user-circle mr-2 text-warning" style="font-size: 1.2rem;"></i>
+                        <span id="userDisplay">Cargando...</span>
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-right shadow border-0 mt-2" aria-labelledby="dropdownUsuario">
+                        <div class="dropdown-header small text-muted" id="dropdownRolInfo">Rol: ...</div>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#configuracionModal">
+                            <i class="fas fa-cog mr-2 text-secondary"></i> Configuración de Cuenta
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item text-danger font-weight-bold" href="#" id="btnLogout">
+                            <i class="fas fa-sign-out-alt mr-2"></i> Cerrar Sesión
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VISTA 1: PROYECTOS -->
+            <div id="vistaProyectos">
+                <div class="row align-items-center mb-4">
+                    <div class="col-md-6">
+                        <p class="text-muted small mb-0">Gestiona y publica tus proyectos de investigación turística.</p>
+                    </div>
+                    <div class="col-md-6 text-md-right">
+                        <button class="btn btn-orange px-4 py-2 shadow-sm" data-toggle="modal" data-target="#nuevoProyectoModal">
+                            <i class="fas fa-plus-circle mr-2"></i> Nuevo Proyecto
+                        </button>
+
+                        <button onclick="compartirProyecto('${p.titulo}', '${API_URL}/proyectos/${p.id}/descargar')" class="btn btn-sm btn-outline-primary" title="Compartir enlace">
+                             <i class="fas fa-share-alt"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Buscador de proyectos -->
+                <div class="card border-0 shadow-sm rounded-lg mb-4">
+                    <div class="card-body p-3">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text bg-transparent border-0"><i class="fas fa-search text-muted"></i></span>
+                            </div>
+                            <input type="text" id="inputBusquedaDashboard" class="form-control border-0" placeholder="Buscar en mis proyectos...">
+                            <div class="col-md-3 mt-2 mt-md-0">
+                                <select id="filtroEstadoProyecto" class="form-control border-0 bg-light" onchange="filtrarProyectosPorEstado()">
+                                    <option value="todos">Todos los estados</option>
+                                    <option value="publico">Solo Públicos</option>
+                                    <option value="borrador">Solo Borradores</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="gridMisProyectos" class="row"></div>
+            </div>
+
+            <!-- VISTA 2: PANEL DE ADMINISTRACIÓN (Con Filtros) -->
+            <div id="vistaAdmin" style="display: none;">
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center flex-wrap">
+                        <h5 class="font-weight-bold text-dark m-0"><i class="fas fa-users-cog mr-2 text-warning"></i>Control de Usuarios y Roles</h5>
+                        
+                        <!-- Filtro por Rol -->
+                        <div class="form-inline mt-2 mt-md-0">
+                            <label class="small font-weight-bold mr-2 text-muted">Filtrar por rol:</label>
+                            <select id="filtroRolUsuarios" class="form-control form-control-sm" onchange="filtrarUsuariosTabla()">
+                                <option value="todos">Todos</option>
+                                <option value="Estudiante">Estudiantes</option>
+                                <option value="Profesor">Profesores</option>
+                                <option value="Administrador">Administradores</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle">
+                                <thead class="thead-light">
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Nombre</th>
+                                        <th>Correo</th>
+                                        <th>Rol Actual</th>
+                                        <th>Estado</th>
+                                        <th>Acciones / Asignar Rol</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tablaUsuariosAdmin">
+                                    <!-- Dinámico con JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+            <!-- SECCIÓN DE ADMINISTRACIÓN DE USUARIOS (Agregar en dashboard.html) -->
+        <div class="card border-0 shadow-sm mb-5" id="seccionAdmin" style="display: none;">
+            <div class="card-header bg-white py-3">
+                <h5 class="font-weight-bold text-dark m-0"><i class="fas fa-users-cog mr-2 text-warning"></i>Gestión de Usuarios y Profesores Pendientes</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="thead-light">
+                            <tr>
+                                <th>ID</th>
+                                <th>Nombre</th>
+                                <th>Correo</th>
+                                <th>Rol</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tablaUsuariosAdmin">
+                            <!-- Se llena dinámicamente con JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Grid de Proyectos -->
+        <div id="gridMisProyectos" class="row">
+            <!-- Se cargan dinámicamente con JS -->
+        </div>
+    </div>
+
+    <!-- MODAL NUEVO PROYECTO  -->
+    <div class="modal fade" id="nuevoProyectoModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+            <div class="modal-content border-0 shadow-lg rounded-lg">
+                <div class="modal-header bg-light">
+                    <h5 class="modal-title font-weight-bold"><i class="fas fa-file-upload mr-2 text-warning"></i>Crear Nuevo Proyecto</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body p-4">
+                    <div id="alertaProyecto" class="alert alert-danger d-none" role="alert"></div>
+                    <form id="formNuevoProyecto" enctype="multipart/form-data">
+                        <div class="form-group">
+                            <label class="small font-weight-bold">Título del Proyecto *</label>
+                            <input type="text" class="form-control" name="titulo" required placeholder="Ej. Diagnóstico Turístico en Anzoátegui">
+                        </div>
+                        <div class="form-group">
+                            <label class="small font-weight-bold">Descripción / Resumen</label>
+                            <textarea class="form-control" name="descrpcion" rows="3" placeholder="Resumen del trabajo..."></textarea>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <label class="small font-weight-bold">Carrera *</label>
+                                <select class="form-control" name="id_carrera" id="selectCarreras" required>
+                                    <option value="">Cargando carreras...</option>
+                                </select>
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label class="small font-weight-bold">Estado inicial</label>
+                                <select class="form-control" name="estado">
+                                    <option value="borrador">Borrador</option>
+                                    <option value="publico">Público</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="small font-weight-bold">Documento PDF (Máx 10 MB) *</label>
+                            <div class="custom-file">
+                                <input type="file" class="custom-file-input" id="archivoPdf" name="archivo" accept=".pdf" required>
+                                <label class="custom-file-label" for="archivoPdf">Seleccionar archivo PDF...</label>
+                            </div>
+                        </div>
+                        <button type="submit" id="btnGuardarProyecto" class="btn btn-orange btn-block py-2 font-weight-bold mt-4">
+                            Guardar Proyecto
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Scripts Modulares -->
+    <script src="js/api.js"></script>
+    <script src="js/dashboard.js"></script>
+
+<script>
+        const token = localStorage.getItem("token");
+
+        // Guard de Autenticación
+        if (!token) {
+            window.location.href = "index.html";
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            cargarProyectosDashboard();
+            // verificarYcargarAdmin() ya se ejecuta automáticamente dentro de dashboard.js
+        });
+
+        // Nombre de archivo en custom file inputi
+        $(".custom-file-input").on("change", function() {
+            var fileName = $(this).val().split("\\").pop();
+            $(this).siblings(".custom-file-label").addClass("selected").html(fileName);
+        });
+
+        // Salir de sesión
+        document.getElementById("btnLogout").addEventListener("click", () => {
+            localStorage.removeItem("token");
+            window.location.href = "index.html";
+        });
+
+        // Cargar mis proyectos
+        async function cargarProyectosDashboard(busqueda = "") {
+            const grid = document.getElementById("gridMisProyectos");
+            grid.innerHTML = '<div class="col-12 text-center py-5"><div class="spinner-border text-warning"></div></div>';
+
+            try {
+                let url = `${API_URL}/proyectos`;
+                if (busqueda) url += `?busqueda=${encodeURIComponent(busqueda)}`;
+
+                const res = await fetch(url, {
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
+
+                if (res.ok) {
+                    const proyectos = await res.json();
+                    if (proyectos.length === 0) {
+                        grid.innerHTML = '<div class="col-12 text-center py-4"><p class="text-muted">No tienes proyectos registrados aún.</p></div>';
+                        return;
+                    }
+
+                    grid.innerHTML = "";
+                    proyectos.forEach(p => {
+                        grid.innerHTML += `
+                            <div class="col-md-4 mb-4">
+                                <div class="card project-card h-100">
+                                    <div class="card-header card-header-custom d-flex justify-content-between align-items-center">
+                                        <span>#${p.id}</span>
+                                        <span class="badge badge-pill badge-warning text-dark text-uppercase" style="font-size:0.65rem;">${p.estado}</span>
+                                    </div>
+                                    <div class="card-body d-flex flex-column">
+                                        <h5 class="card-title font-weight-bold text-dark">${p.titulo}</h5>
+                                        <p class="card-text text-muted small flex-grow-1">${p.descripcion || 'Sin descripción.'}</p>
+                                        <div class="mt-3 pt-3 border-top d-flex justify-content-between">
+                                            <a href="${API_URL}/proyectos/${p.id}/descargar" class="btn btn-sm btn-outline-secondary" target="_blank">
+                                                <i class="fas fa-file-pdf text-danger"></i> PDF
+                                            </a>
+                                            <button onclick="eliminarProyecto('${p.slug}')" class="btn btn-sm btn-outline-danger">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                }
+            } catch (err) {
+                grid.innerHTML = '<div class="col-12 text-center py-4 text-danger">Error al cargar datos.</div>';
+            }
+        }
+
+        // Crear Proyecto
+        document.getElementById("formNuevoProyecto").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const alerta = document.getElementById("alertaProyecto");
+            const btn = document.getElementById("btnGuardarProyecto");
+
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm mr-2"></span> Guardando...';
+
+            try {
+                const res = await fetch(`${API_URL}/proyectos`, {
+                    method: "POST",
+                    headers: { "Authorization": `Bearer ${token}` },
+                    body: formData
+                });
+
+                if (res.ok) {
+                    $('#nuevoProyectoModal').modal('hide');
+                    e.target.reset();
+                    cargarProyectosDashboard();
+                } else {
+                    const err = await res.json();
+                    alerta.textContent = err.detail || "Error al crear proyecto.";
+                    alerta.classList.remove("d-none");
+                }
+            } catch (err) {
+                alerta.textContent = "Error de conexión con el servidor.";
+                alerta.classList.remove("d-none");
+            } finally {
+                btn.disabled = false;
+                btn.textContent = "Guardar Proyecto";
+            }
+        });
+
+        // Eliminar Proyecto por Slug
+        async function eliminarProyecto(slug) {
+            if (!confirm("¿Seguro que deseas eliminar este proyecto?")) return;
+
+            try {
+                const res = await fetch(`${API_URL}/proyectos/${slug}`, {
+                    method: "DELETE",
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
+
+                if (res.ok) {
+                    cargarProyectosDashboard();
+                } else {
+                    alert("No se pudo eliminar el proyecto.");
+                }
+            } catch (err) {
+                alert("Error de red.");
+            }
+        }
+
+        // Búsqueda en tiempo real
+        document.getElementById("inputBusquedaDashboard").addEventListener("keyup", (e) => {
+            cargarProyectosDashboard(e.target.value);
+        });
+    </script>
+</body>
+</html>

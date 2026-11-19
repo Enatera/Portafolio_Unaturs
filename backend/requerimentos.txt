@@ -1,0 +1,21 @@
+Plaintext
+fastapi
+uvicorn
+sqlalchemy
+pymysql
+pydantic
+email-validator
+python-multipart
+python-dotenv
+uvicorn app.main:app --reload
+
+INFO:     127.0.0.1:56551 - "POST /api/v1/proyectos HTTP/1.1" 500 Internal Server Error
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "C:\Users\DELL\Desktop\Portafolio_Unaturs\backend\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1969, in _exec_single_context
+    self.dialect.do_execute(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        cursor, str_statement, effective_parameters, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
